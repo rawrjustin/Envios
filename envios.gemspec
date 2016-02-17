@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'envios'
-  s.version     = '0.0.1'
+  s.version     = '0.1.0'
   s.date        = '2016-02-17'
   s.summary     = "Environment variable loading for iOS"
   s.description = "Simple environment configuration loading"

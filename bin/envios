@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require "envios/cli"
+
+Envios::CLI.start

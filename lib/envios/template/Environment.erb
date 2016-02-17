@@ -1,0 +1,8 @@
+import Foundation
+
+struct Environment {
+    static let info = NSProcessInfo.processInfo().environment
+<% for key in env_keys %>
+    static let <%= key %> = Environment.info["<%= key %>"]
+<% end %>
+}

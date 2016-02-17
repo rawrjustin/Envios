@@ -4,14 +4,9 @@ module Envios
   class CLI < Thor
     desc "setup", "Setup Milieu to use a configuration file"
 
-    method_option "path",
-      aliases: ["-p"],
-      default: "config/config.yml",
-      desc: "Specify a configuration file path"
-
     def setup
       require "envios/setup"
-      Setup.start
+      Setup.start(ARGV)
     end
 
     desc "read", "read in a configuration file and create xcconfig files, attach the first configuration"

@@ -15,8 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency "erubis", "~> 2.7"
   s.add_dependency "pathname"
   s.add_dependency "Xcodeproj"
-  s.add_dependency "yaml"
-
+  
   s.executables << "envios"
 
 end

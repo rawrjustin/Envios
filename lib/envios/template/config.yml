@@ -1,12 +1,25 @@
 
 # Add configuration values here, as shown below.
 
-project_name: "Padmapper.xcodeproj"
+project_name: "Zumper.xcodeproj"
 using_cocoapods: true
 
 production:
-  stripe_api_key: sk_live_EeHnL644i6zo4Iyq4v1KdV9H
-  stripe_publishable_key: pk_live_9lcthxpSIHbGwmdO941O1XVU
+  API_ENDPOINT: https://www.zumper.com
+  ADJUST_KEY: abcdk3kjn2
+  OPTIMIZELY_TOKEN: AVNL3gcBC44KDYIVaaLKEMFWGOiRh8nhX~434325113
+  MIXPANEL_KEY: 1234cd2247e4528ea321b6433aaf1b2
+  GOOGLE_MAPS_KEY: VDofSyB3P3YkHQ430qWDveeIMtsASewb_fnJKnj
+  GOOGLE_ANALYTICS_IDENTIFIER: UA-32482423-5
+  STRIPE_KEY_DEV: pk_prod_5jknKFEkn4kj6nKJWLKFWWIZ
+  MIXPANEL_KEY: 5040495i40549054jkn54kjn343nj4
 
 test:
-  mixpanel_api_key: sk_live_EeHnL644i6zo4Iyq4v1KdV9H
+  API_ENDPOINT: https://test.zumper.com
+  ADJUST_KEY: abcdk3kjn2
+  OPTIMIZELY_TOKEN: AVNL3gcBC44KDYIVaaLKEMFWGOiRh8nhX~434325113
+  MIXPANEL_KEY: 89434jkn4jk3kaef9emlb48hb930olq3
+  GOOGLE_MAPS_KEY: VDofSyB3P3YkHQ430qWDveeIMtsASewb_fnJKnj
+  GOOGLE_ANALYTICS_IDENTIFIER: UA-32904209-1
+  STRIPE_KEY_DEV: pk_test_5jknKFEkn4kj6nKJWLKFWWIZ
+  MIXPANEL_KEY: 5040495i40549054jkn54kjn343nj4

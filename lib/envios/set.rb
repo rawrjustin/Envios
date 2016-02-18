@@ -35,11 +35,17 @@ module Envios
             xcconfig_file = File.open(selected_config_path, 'r+')
             lines = xcconfig_file.readlines
             xcconfig_file.close
-            if release
-              lines = ['#include "./Pods/Target Support Files/Pods/Pods.debug.xcconfig"', ''] + lines
-            else
-              lines = ['#include "./Pods/Target Support Files/Pods/Pods.release.xcconfig"', ''] + lines
+
+            pod_debug = '#include "./Pods/Target Support Files/Pods/Pods.debug.xcconfig"'
+            pod_release = '#include "./Pods/Target Support Files/Pods/Pods.release.xcconfig"'
+
+            # If we already have the #include up top, delete that line
+            if (lines[0].include? pod_debug) || (lines[0].include? pod_release)
+              lines.shift
             end
+
+            # Add the #include for the proper cocoapods xcconfig
+            lines = [(if release then pod_release else pod_debug end), "\n"] + lines
             new_xcconfig_file = File.new(selected_config_path, "w")
             lines.each { |line| new_xcconfig_file.write line }
             new_xcconfig_file.close

@@ -40,7 +40,7 @@ module Envios
             else
               lines = ['#include "./Pods/Target Support Files/Pods/Pods.release.xcconfig"', ''] + lines
             end
-            new_xcconfig_file = File.new("selected_config_path", "w")
+            new_xcconfig_file = File.new(selected_config_path, "w")
             lines.each { |line| new_xcconfig_file.write line }
             new_xcconfig_file.close
           end

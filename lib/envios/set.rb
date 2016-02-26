@@ -11,12 +11,10 @@ module Envios
         File.expand_path("../template", __FILE__)
       end
 
-      def self.process(config_name, file_path, release)
+      def self.process(setting, file_path, release)
         # Get the settings file for the project name
         config_settings  = YAML::load( File.open( file_path ) )
-        config_keys = config_settings[config_name].keys.map!(&:upcase)
         proj_file = config_settings.delete("project_name")
-        using_cocoapods = config_settings.delete("using_cocoapods")
 
         project = Xcodeproj::Project.open "#{proj_file}"
 
@@ -28,43 +26,56 @@ module Envios
 
         # If we can find a config with the matching name
         # then set all targets with this configuration
-        if selected_config_path = Dir["#{proj_root}/#{config_dir}/#{config_name}.xcconfig"].first
+        if config_settings.has_key?(setting)
+          config_keys = config_settings[setting].keys.map!(&:upcase)
 
-          # Set cocoapods configuration based on release/debug
-          if using_cocoapods
-            xcconfig_file = File.open(selected_config_path, 'r+')
-            lines = xcconfig_file.readlines
-            xcconfig_file.close
-
-            pod_debug = '#include "./Pods/Target Support Files/Pods/Pods.debug.xcconfig"'
-            pod_release = '#include "./Pods/Target Support Files/Pods/Pods.release.xcconfig"'
-
-            # If we already have the #include up top, delete that line
-            if (lines[0].include? pod_debug) || (lines[0].include? pod_release)
-              lines.shift
-            end
-
-            # Add the #include for the proper cocoapods xcconfig
-            lines = [(if release then pod_release else pod_debug end), "\n"] + lines
-            new_xcconfig_file = File.new(selected_config_path, "w")
-            lines.each { |line| new_xcconfig_file.write line }
-            new_xcconfig_file.close
-          end
-
+          # Create a config group for our xcconfig files
           config_group = project.main_group["Config"]
           unless config_group
             config_group = project.main_group.new_group("Config")
           end
           config_group.set_source_tree('SOURCE_ROOT')
 
-          puts "matching: #{selected_config_path}"
-          xcfile_ref = config_group.files.find { |file| file.real_path == Pathname.new(selected_config_path) }
-          unless xcfile_ref
-            xcfile_ref = config_group.new_file(selected_config_path)
-          end
-
+          # Check for cocoapods existence
           project.targets.each do |target|
             target.build_configurations.each do |build_config|
+              config_path = nil
+              # Check if cocoapods xcconfig exists
+              if (ref = build_config.base_configuration_reference).nil?
+                config_name = "#{setting}"
+                config_path = CLI.create_config(config_settings, setting, "#{setting}-#{$1}")
+              else
+                if ref.path =~ /Pods\S*\/Pods[-|.](\S*).xcconfig/
+                  config_name = "#{setting}-#{$1}"
+                  config_path = CLI.create_config(config_settings, setting, "#{setting}-#{$1}")
+                  xcconfig_file = File.open(config_path, 'r+')
+                  lines = xcconfig_file.readlines
+                  xcconfig_file.close
+
+                  pod_xcconfig = "#include '#{proj_root}/#{ref.path}'"
+
+                  # If we already have the cocoapods #include up top, delete that line
+                  if (lines[0].include? pod_xcconfig)
+                    lines.shift
+                  end
+
+                  # Add the #include for the proper cocoapods xcconfig
+                  lines = [pod_xcconfig, "\n"] + lines
+                  new_xcconfig_file = File.new(config_path, "w")
+                  lines.each { |line| new_xcconfig_file.write line }
+                  new_xcconfig_file.close
+
+                  puts "Attached cocoapods xcconfig to configuration files"
+                else
+                  raise "Envios doesn't recognize the pod xcconfig format."
+                end
+              end
+
+              xcfile_ref = config_group.files.find { |file| file.real_path == Pathname.new(config_path) }
+              unless xcfile_ref
+                xcfile_ref = config_group.new_file(config_path)
+              end
+
               build_config.base_configuration_reference = xcfile_ref
             end
           end
@@ -103,8 +114,25 @@ module Envios
           end
 
           project.save("#{proj_root}/#{proj_file}")
-          puts "You are now in your \e[35m#{config_name}\e[0m environment, use the constants in your Environment.swift file."
+          puts "You are now in your \e[35m#{setting}\e[0m environment, use the constants in your Environment.swift file."
         end
+      end
+    end
+
+    def self.create_config(config, setting, config_name)
+
+      # Write keys to file
+      if config.has_key?(setting)
+        file_name = "#{config_name}.xcconfig"
+        xcconfig_file = File.open("config/#{file_name}", 'w')
+        config[setting].each do |key, value|
+          xcconfig_file.puts("#{key.upcase} = #{value}")
+        end
+        xcconfig_file.close
+        puts "Created environment: \e[36m#{setting}\e[0m"
+        return xcconfig_file.path
+      else
+        raise "No such configuration setting named #{config_name}"
       end
     end
   end

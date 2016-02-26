@@ -2,7 +2,6 @@
 # Add configuration values here, as shown below.
 
 project_name: "Zumper.xcodeproj"
-using_cocoapods: true
 
 production:
   API_ENDPOINT: https://www.zumper.com

@@ -2,6 +2,7 @@
 # Add configuration values here, as shown below.
 
 project_name: "Zumper.xcodeproj"
+targets: [Target1, Target2]
 
 production:
   API_ENDPOINT: https://www.zumper.com

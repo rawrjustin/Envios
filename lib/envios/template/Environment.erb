@@ -1,8 +1,15 @@
 import Foundation
 
-struct Environment {
+struct EnviosConstants {
     static let info = NSProcessInfo.processInfo().environment
 <% for key in env_keys %>
-    static let <%= key %> = Environment.info["<%= key %>"]
+    static let <%= key %> = EnviosConstants.info["<%= key %>"]!
+<% end %>
+}
+
+@objc class EnviosConstantsObjC: NSObject {
+    private override init() {}
+<% for key in env_keys %>
+    class func <%= key.downcase.camelize(:lower) %>() -> String { return EnviosConstants.<%= key %> }
 <% end %>
 }

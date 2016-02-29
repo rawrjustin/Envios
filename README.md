@@ -16,20 +16,20 @@ envios setup
 3. Edit the configuration file
 ```
 project_file: ProjectName.xcodeproj
-uses_cocoapods: true
+targets: [target1, target2]
 
   default:                                 # name of the configuration
       CONSTANTS_KEY: CONSTANTS_VALUE        # key value pairs
-    ```
+```
 
 4. Read configuration file and set configuration
 ```
-envios read
-envios set default
+envios set configuration_name
 ```
 
-5. Use your generated Environment.swift variables in your code
+5. Use your generated Environment.swift variables in your swift or objc code
 ```
 print(Environment.CONSTANTS_KEY)
+NSLog([Environment constantsKey])
 ```
 ------

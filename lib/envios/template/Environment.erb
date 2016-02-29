@@ -1,6 +1,7 @@
 import Foundation
 
 struct EnviosConstants {
+    static let configuration = "<%= configuration %>"
     static let info = NSProcessInfo.processInfo().environment
 <% for key in env_keys %>
     static let <%= key %> = EnviosConstants.info["<%= key %>"]!
@@ -9,6 +10,7 @@ struct EnviosConstants {
 
 @objc class EnviosConstantsObjC: NSObject {
     private override init() {}
+    class func configuration() -> String { return EnviosConstants.configuration }
 <% for key in env_keys %>
     class func <%= key.downcase.camelize(:lower) %>() -> String { return EnviosConstants.<%= key %> }
 <% end %>

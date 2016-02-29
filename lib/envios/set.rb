@@ -43,9 +43,9 @@ module Envios
                 config_path = nil
                 # Check if cocoapods xcconfig exists
                 ref = build_config.base_configuration_reference
-                if ref.nil?
+                if ref.nil? || !File.exist?(ref.path)
                   config_name = "#{setting}"
-                  config_path = CLI.create_config(config_settings, setting, "#{setting}-#{$1}")
+                  config_path = CLI.create_config(config_settings, setting, "Envios-#{setting}")
                 else
                   if ref.path =~ /Pods.*\/Pods[-.](.+).xcconfig/
 
@@ -63,7 +63,7 @@ module Envios
                     new_xcconfig_file = File.new(config_path, "w")
                     lines.each { |line| new_xcconfig_file.write line }
                     new_xcconfig_file.close
-                  elsif ref.path =~ /config\/(.+).xcconfig/
+                  elsif ref.path =~ /config\/Envios-(.+).xcconfig/
                     # this is an xcconfig we created
                     existing_config_name = "#{$1}"
                     includes = File.readlines(ref.path).select { |line| line =~ /#include/ }
@@ -108,7 +108,7 @@ module Envios
           # Setup the environment constants template file
           template = File.read(File.expand_path('../',__FILE__) + "/template/Environment.erb")
           template = Erubis::Eruby.new(template)
-          swift_env_constants = template.result(:env_keys=>config_keys)
+          swift_env_constants = template.result(:env_keys=>config_keys, :configuration=>setting)
 
           env_file_path = "#{proj_root}/#{config_dir}/Environment.swift"
           File.open("#{env_file_path}", 'w') { |f| f.write(swift_env_constants) }
@@ -121,7 +121,6 @@ module Envios
           # Ensure that the swift constants file is added to target
           project.targets.each do |target|
             if targets.include? target.name
-              puts target.name
               unless target.source_build_phase.files_references.include?(file_ref)
                 target.source_build_phase.add_file_reference(file_ref)
                 puts "Adding \e[35m#{setting}\e[0m Environment.swift to the \e[32m#{target.display_name}\e[0m"
